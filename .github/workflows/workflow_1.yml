@@ -47,7 +47,7 @@ jobs:
       - name: Tag Docker images with timestamp
         run: |
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          AWS_ACCOUNT_ID = 343830488876
+          SET AWS_ACCOUNT_ID = 343830488876
           docker tag backend:latest $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1/backend:$TIMESTAMP
           docker tag frontend:latest $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1/frontend:$TIMESTAMP
 
