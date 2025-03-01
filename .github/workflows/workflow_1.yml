@@ -41,10 +41,8 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
 
       - name: Login to Amazon ECR
-        run: |
-          aws ecr get-login-password --region aws-region | docker login --username AWS --password-stdin 343830488876.dkr.ecr.us-east-1.amazonaws.com
-        #id: login-ecr
-        #uses: aws-actions/amazon-ecr-login@v2
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
       - name: Tag Docker images with timestamp
         run: |
