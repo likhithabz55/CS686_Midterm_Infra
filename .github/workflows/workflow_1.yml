@@ -48,9 +48,9 @@ jobs:
 
       - name: Tag Docker images with timestamp
         run: |
-          TIMESTAMP = $(date +"%Y-%m-%d_%H-%M-%S")
-          BACKEND_TIMESTAMP = "backend_"$TIMESTAMP
-          FRONTEND_TIMESTAMP = "frontend_"$TIMESTAMP
+          TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+          BACKEND_TIMESTAMP="backend_"$TIMESTAMP
+          FRONTEND_TIMESTAMP="frontend_"$TIMESTAMP
           docker tag backend:latest 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$BACKEND_TIMESTAMP
           docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$BACKEND_TIMESTAMP
           docker tag frontend:latest 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$FRONTEND_TIMESTAMP
