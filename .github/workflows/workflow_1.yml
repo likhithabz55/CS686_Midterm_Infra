@@ -48,11 +48,12 @@ jobs:
 
       - name: Tag Docker images with timestamp
         run: |
-          TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          docker tag backend:latest 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1/backend:$TIMESTAMP
-          docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1/backend:$TIMESTAMP
-          docker tag frontend:latest 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1/frontend:$TIMESTAMP
-          docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1/frontend:$TIMESTAMP
+          BACKEND_TIMESTAMP = "backend_$(date +%Y%m%d%H%M%S)"
+          FRONTEND_TIMESTAMP = "frontend_$(date +%Y%m%d%H%M%S)"
+          docker tag backend:latest 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$backend_TIMESTAMP
+          docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$backend_TIMESTAMP
+          docker tag frontend:latest 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$frontend_TIMESTAMP
+          docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$frontend_TIMESTAMP
 
       #- name: Push images to ECR
       #  if: success()
