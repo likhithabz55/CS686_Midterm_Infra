@@ -22,12 +22,12 @@ jobs:
      #Build docker image for backend
       - name: build docker image for backend
         run: |
-          docker compose up --build backend
+          docker compose up --build -d backend
 
      #Build docker image for frontend
       - name: build docker image for frontend
         run: |
-          docker compose up --build frontend    
+          docker compose up --build -d frontend    
 
      #include code to perform unit and integration tests
 
