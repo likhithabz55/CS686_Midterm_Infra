@@ -23,11 +23,13 @@ jobs:
       - name: build docker image for backend
         run: |
           docker compose up --build -d backend
+          docker tag cs686_midterm_source/backend:latest backend:latest
 
      #Build docker image for frontend
       - name: build docker image for frontend
         run: |
-          docker compose up --build -d frontend    
+          docker compose up --build -d frontend
+          docker tag cs686_midterm_source/frontend:latest frontend:latest
 
      #include code to perform unit and integration tests
 
@@ -53,5 +55,5 @@ jobs:
       - name: Push images to ECR
         if: success()
         run: |
-          docker push $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1/backend:$TIMESTAMP
-          docker push $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1/frontend:$TIMESTAMP
+          docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1/backend:$TIMESTAMP
+          docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1/frontend:$TIMESTAMP
