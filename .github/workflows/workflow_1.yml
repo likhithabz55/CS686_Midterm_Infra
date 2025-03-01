@@ -22,7 +22,6 @@ jobs:
      #Build docker image for backend
       - name: build docker image for backend
         run: |
-          cd CS686_Midterm_Source
           docker compose up --build backend
 
      #Build docker image for frontend
