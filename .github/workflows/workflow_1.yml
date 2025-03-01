@@ -47,12 +47,11 @@ jobs:
       - name: Tag Docker images with timestamp
         run: |
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          ECR_REPO = ${{ secrets.ecr_repo }}
-          docker tag backend:latest $AWS_ACCOUNT_ID.secrets.dkr.ecr.us-east-1.amazonaws.com/$ECR_REPO/backend:$TIMESTAMP
-          docker tag frontend:latest $AWS_ACCOUNT_ID.secrets.dkr.ecr.us-east-1.amazonaws.com/$ECR_REPO/front:$TIMESTAMP
+          docker tag backend:latest $AWS_ACCOUNT_ID.secrets.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1/backend:$TIMESTAMP
+          docker tag frontend:latest $AWS_ACCOUNT_ID.secrets.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1/frontend:$TIMESTAMP
 
       - name: Push images to ECR
         if: success()
         run: |
-          docker push $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/$ECR_REPO/backend:$TIMESTAMP
-          docker push $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/$ECR_REPO/frontend:$TIMESTAMP
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1/backend:$TIMESTAMP
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1/frontend:$TIMESTAMP
