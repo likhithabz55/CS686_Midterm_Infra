@@ -1,0 +1,93 @@
+name: Deploy to Temporary EC2
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Nightly Build"]
+    types:
+      - success
+
+env:
+  MyEC2KeyPair: |
+    ${{ secrets.MyEC2KeyPair }}
+  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  aws-region: ${{ secrets.AWS_REGION }}
+  aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Repository
+        uses: actions/checkout@v4
+        with:
+          repository: "likhithabz55/CS686_Midterm_Source"
+
+      - name: Launching temporary EC2
+        run: |
+         cd ~
+         aws ec2 run-instances \
+           --image-id ami-05b10e08d247fb927 --count 1 \
+           --instance-type t2.micro --key-name MyEC2KeyPair \
+           --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=temp_EC2}]'
+
+      - name: Fetch IP of EC2
+        run: |
+          IP=$(aws ec2 describe-instances \ 
+            --filters "Name=tag:Name,Values=temp_EC2" \
+            --query "Reservations[*].Instances[*].PublicIpAddress" \
+            --output text)
+
+      - name: Copying test, init.sql, docker-compose files from source repo to EC2
+        run: |
+          scp -i ~/MyEC2KeyPair.pem -o StrictHostKeyChecking=no CS686_Midterm_Source/test/test_2.sh ec2-user@$IP:./
+          scp -i ~/MyEC2KeyPair.pem -o StrictHostKeyChecking=no CS686_Midterm_Source/init.sql ec2-user@$IP:./
+          scp -i ~/MyEC2KeyPair.pem -o StrictHostKeyChecking=no CS686_Midterm_Source/docker-compose.ec2.yml ec2-user@$IP:./
+        with:
+          MyEC2KeyPair
+
+      - name: Checkout Infra Repository
+        uses: actions/checkout@v4
+        with:
+          repository: "likhithabz55/CS686_Midterm_Infra"
+
+      - name: ssh to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@$IP
+        with:
+          MyEC2KeyPair
+
+      - name: EC2 Docker setup
+        run: bash docker_setup.sh
+
+      - name: Pull images from ECR
+        run: bash ecr_steps.sh
+
+      - name: Run containers with docker compose
+        run: |
+          docker compose -f docker-compose.ec2.yml up -d
+
+      - name: Run integration tests
+        run: |
+          bash test_2.sh
+
+      - name: Tag and upload images
+        if: success()
+        run: |
+          TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+          BACKEND_TIMESTAMP="backend_"$TIMESTAMP
+          FRONTEND_TIMESTAMP="frontend_"$TIMESTAMP
+          docker tag 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:backend_latest \
+            343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$BACKEND_TIMESTAMP
+          docker tag 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:frontend_latest \
+            343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$FRONTEND_TIMESTAMP
+          
+          docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$BACKEND_TIMESTAMP
+          docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$FRONTEND_TIMESTAMP
+          
+          
+
+
+

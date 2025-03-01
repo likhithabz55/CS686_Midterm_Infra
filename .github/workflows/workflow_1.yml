@@ -9,6 +9,14 @@ on:
     branches:
       - main
 
+env:
+  MyEC2KeyPair: |
+    ${{ secrets.MyEC2KeyPair }}
+  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  aws-region: ${{ secrets.AWS_REGION }}
+  aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -46,7 +54,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Tag Docker images with timestamp
+      - name: Tag and Push Docker images with timestamp
         run: |
           TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
           BACKEND_TIMESTAMP="backend_"$TIMESTAMP
@@ -55,6 +63,16 @@ jobs:
           docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$BACKEND_TIMESTAMP
           docker tag frontend:latest 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$FRONTEND_TIMESTAMP
           docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$FRONTEND_TIMESTAMP
+
+      - name: Terminating containers locally
+        run: |
+          docker compose down -v
+
+      
+
+          
+          
+          
 
       #- name: Push images to ECR
       #  if: success()
