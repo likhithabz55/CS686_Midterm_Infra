@@ -1,1 +1,59 @@
+name: Nightly Build
 
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Repository
+        uses: actions/checkout@v4
+        with:
+          repository: "likhithabz55/CS686_Midterm_Source"
+
+     #Build docker image for backend
+      - name: build docker image for backend
+        run: |
+          cd CS686_Midterm_Source
+          docker compose up --build backend
+
+     #Build docker image for frontend
+      - name: build docker image for frontend
+        run: |
+          docker compose up --build frontend    
+
+     #include code to perform unit and integration tests
+
+     #Get access to AWS ECR
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          ecr_repo = ${{ secrets.ECR_REPO }}
+
+      - name: Tag Docker images with timestamp
+        run: |
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          docker tag backend:latest $AWS_ACCOUNT_ID.secrets.dkr.ecr.us-east-1.amazonaws.com/$ECR_REPO/backend:$TIMESTAMP
+          docker tag frontend:latest $AWS_ACCOUNT_ID.secrets.dkr.ecr.us-east-1.amazonaws.com/$ECR_REPO/front:$TIMESTAMP
+
+      - name: Push images to ECR
+        if: success()
+        run: |
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/$ECR_REPO/backend:$TIMESTAMP
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/$ECR_REPO/frontend:$TIMESTAMP
