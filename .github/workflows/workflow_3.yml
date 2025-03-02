@@ -1,0 +1,85 @@
+name: QA Deployment
+
+on:
+  workflow_run:
+    workflows: [ "Deploy to Temporary EC2" ]
+    types:
+      - success
+  workflow_dispatch:
+
+env:
+  MyEC2KeyPair: |
+    ${{ secrets.MyEC2KeyPair }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  aws-region: ${{ secrets.AWS_REGION }}
+  AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      steps:
+        - name: Checkout Source Repository
+          uses: actions/checkout@v4
+          with:
+            repository: "likhithabz55/CS686_Midterm_Source"
+
+        - name: Setting up SSH
+          run: |
+            source ./qa/ec2_config.env
+            mkdir -p ~/.ssh
+            echo "$MyEC2KeyPair" > ~/.ssh/MyEC2KeyPair.pem
+            chmod 400 ~/.ssh/MyEC2KeyPair.pem
+
+        - name: Get IP of QA EC2
+          run: |
+            source ./qa/ec2_config.env
+            echo $INSTANCE_NAME
+            export IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE_NAME" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
+            echo $IP
+            echo "IP=$IP" >> $GITHUB_ENV
+
+        - name: scp files from dev to QA
+          run: |
+            echo $IP
+            scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no ./test/test_2.sh ec2-user@$IP:~/
+            scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no init.sql ec2-user@$IP:~/
+            scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no docker-compose.qa.yml ec2-user@$IP:~/
+
+        - name: Checkout Infra Repository
+          uses: actions/checkout@v4
+          with:
+            repository: "likhithabz55/CS686_Midterm_Infra"
+
+        - name: Copy sh files
+          run: |
+            echo $IP
+            scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no ./qa/docker_setup.sh ec2-user@$IP:~/
+            scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no ./qa/ecr_steps.sh ec2-user@$IP:~/
+
+        - name: Connect to QA EC2
+          run : |
+            source ./qa/ec2_config.sh
+            ssh -o StrictHostKeyChecking=no -i ~/.ssh/MyEC2KeyPair.pem ec2-user@"$IP" << 'EOF'
+              export DOCKER_CONFIG=$HOME/.docker
+            
+              echo "Docker setup"
+              chmod +x docker_setup.sh
+              ./docker_setup.sh
+            
+              newgrp docker
+            
+              echo "ECR"
+              chmod +x ecr_steps.sh
+              ./ecr_steps.sh
+            EOF
+            
+            
+            
+            
+            
+
+
