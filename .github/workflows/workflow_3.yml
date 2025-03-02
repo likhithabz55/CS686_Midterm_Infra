@@ -80,8 +80,8 @@ jobs:
             echo "Docker installed"
             
             echo "ECR"
-            chmod +x ecr_steps.sh
-            ./ecr_steps.sh
+            chmod +x pull_images.sh
+            ./pull_images.sh
             exit
           EOF
             
