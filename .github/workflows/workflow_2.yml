@@ -61,48 +61,41 @@ jobs:
       - name: ssh to EC2
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/MyEC2KeyPair.pem ec2-user@"$IP"
-
-      - name: EC2 Docker setup
-        run: bash docker_setup.sh
-
-      - name: Pull images from ECR
-        run: bash ecr_steps.sh
-
-      - name: Run containers with docker compose
-        run: |
+          echo "Docker setup"
+          bash docker_setup.sh
+          echo "ECR"
+          bash ecr_steps.sh
+          echo "docker build"
           docker-compose -f docker-compose.ec2.yml up -d
+          exit   
 
       - name: Integration_tests
         run: |
-          bash test_2.sh
-
-      - name: Remove images form ECR incase of failure
-        if: steps.Integration_tests.outcome == 'failure'
-        run: |
-          aws ecr batch-delete-image \
-            --repository-name midterm/ecr_1 \
-            --image-ids imageTag=$LATEST_BACKEND_TAG
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/MyEC2KeyPair.pem ec2-user@"$IP" << 'EOF'
+            bash test_2.sh
+            if [ $? -ne 0 ]; then
+              echo "Tests failed"
+              aws ecr batch-delete-image \
+                --repository-name midterm/ecr_1 \
+                --image-ids imageTag=$LATEST_BACKEND_TAG
           
-          aws ecr batch-delete-image \
-            --repository-name midterm/ecr_1 \
-            --image-ids imageTag=$LATEST_FRONTEND_TAG
+              aws ecr batch-delete-image \
+                --repository-name midterm/ecr_1 \
+                --image-ids imageTag=$LATEST_FRONTEND_TAG
+            else
+              echo "Tests pass"
+              TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+              BACKEND_TIMESTAMP="backend_"$TIMESTAMP
+              FRONTEND_TIMESTAMP="frontend_"$TIMESTAMP
+              docker tag 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:backend_latest \
+                343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$BACKEND_TIMESTAMP
+              docker tag 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:frontend_latest \
+                343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$FRONTEND_TIMESTAMP
+            
+              docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$BACKEND_TIMESTAMP
+              docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$FRONTEND_TIMESTAMP
+            fi
+          EOF
           
 
-      - name: Tag and upload images
-        if: steps.Integration_tests.outcome == 'success'
-        run: |
-          TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
-          BACKEND_TIMESTAMP="backend_"$TIMESTAMP
-          FRONTEND_TIMESTAMP="frontend_"$TIMESTAMP
-          docker tag 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:backend_latest \
-            343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$BACKEND_TIMESTAMP
-          docker tag 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:frontend_latest \
-            343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$FRONTEND_TIMESTAMP
-          
-          docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$BACKEND_TIMESTAMP
-          docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$FRONTEND_TIMESTAMP
-          
-        
-
-
-
+      
