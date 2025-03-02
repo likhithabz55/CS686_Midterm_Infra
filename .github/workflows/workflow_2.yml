@@ -117,14 +117,15 @@ jobs:
             exit 
           EOF
 
-      - name: Deleting EC2 instance
-        run: |
-          export instance_id=$(aws ec2 describe-instances --filters \
-            "Name=instance-state-name,Values=running" \
-            "Name=tag:Name,Values=temp_EC2" --query 'Reservations[*].Instances[*].InstanceId' --output text)
-          echo "instance_id=$instance_id"
-          aws ec2 terminate-instances --instance-ids $instance_id
-          echo "Instance shutting down"
+      #- name: Deleting EC2 instance
+      #  if: failure()
+      #  run: |
+      #    export instance_id=$(aws ec2 describe-instances --filters \
+      #      "Name=instance-state-name,Values=running" \
+      #      "Name=tag:Name,Values=temp_EC2" --query 'Reservations[*].Instances[*].InstanceId' --output text)
+      #    echo "instance_id=$instance_id"
+      #    aws ec2 terminate-instances --instance-ids $instance_id
+      #    echo "Instance shutting down"
           
           
           
