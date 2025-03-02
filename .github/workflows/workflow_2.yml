@@ -80,7 +80,8 @@ jobs:
             echo "ECR"
             bash ecr_steps.sh
             echo "docker build"
-            sudo docker compose -f ./docker-compose.ec2.yml up --detach
+            mv ./docker-compose.ec2.yml ./docker-compose.yml
+            sudo docker compose up --detach
             exit
           EOF
 
