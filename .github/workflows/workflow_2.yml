@@ -41,10 +41,7 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
       - name: Fetch IP of EC2
         run: |
-          IP=$(aws ec2 describe-instances \ 
-            --filters "Name=tag:Name,Values=temp_EC2" \
-            --query "Reservations[*].Instances[*].PublicIpAddress" \
-            --output text)
+          IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=temp_EC2" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
 
       - name: Copying test, init.sql, docker-compose files from source repo to EC2
         run: |
