@@ -69,12 +69,24 @@ jobs:
         run: |
           docker compose -f docker-compose.ec2.yml up -d
 
-      - name: Run integration tests
+      - name: Integration_tests
         run: |
           bash test_2.sh
 
+      - name: Remove images form ECR incase of failure
+        if: steps.Integration_tests.outcome == 'failure'
+        run: |
+          aws ecr batch-delete-image \
+            --repository-name midterm/ecr_1 \
+            --image-ids imageTag=LATEST_BACKEND_TAG
+          
+          aws ecr batch-delete-image \
+            --repository-name midterm/ecr_1 \
+            --image-ids imageTag=LATEST_FRONTEND_TAG
+          
+
       - name: Tag and upload images
-        if: success()
+        if: steps.Integration_tests.outcome == 'success'
         run: |
           TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
           BACKEND_TIMESTAMP="backend_"$TIMESTAMP
@@ -87,7 +99,7 @@ jobs:
           docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$BACKEND_TIMESTAMP
           docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$FRONTEND_TIMESTAMP
           
-          
+        
 
 
 
