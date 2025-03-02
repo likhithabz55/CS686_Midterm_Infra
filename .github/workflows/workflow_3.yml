@@ -36,7 +36,6 @@ jobs:
         run: |
           source ./qa/ec2_config.env
           echo $INSTANCE_NAME
-          export IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE_NAME" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
           echo $IP
           echo "IP=$IP" >> $GITHUB_ENV
 
