@@ -30,6 +30,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "$MyEC2KeyPair" > ~/.ssh/MyEC2KeyPair.pem
           chmod 400 ~/.ssh/MyEC2KeyPair.pem
+
       - name: Launching temporary EC2
         run: |
          cd ~
@@ -38,7 +39,7 @@ jobs:
            --instance-type t2.micro --key-name MyEC2KeyPair \
            --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=temp_EC2}]'
         env:
-          AWS_DEFAULT_REGION: $aws-region
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
       - name: Fetch IP of EC2
         run: |
           IP=$(aws ec2 describe-instances \ 
