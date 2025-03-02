@@ -47,8 +47,8 @@ jobs:
       - name: Copy sh files
         run: |
           echo $IP
-          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no ./qa/docker_setup.sh ec2-user@$IP:~/
-          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no ./qa/ecr_steps.sh ec2-user@$IP:~/
+          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no ./qa/docker_setup.sh ec2-user@"$IP":~/
+          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no ./qa/ecr_steps.sh ec2-user@"$IP":~/
 
       - name: Checkout Infra Repository
         uses: actions/checkout@v4
@@ -58,9 +58,9 @@ jobs:
       - name: scp files from dev to QA
         run: |
           echo $IP
-          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no ./test/test_2.sh ec2-user@$IP:~/
-          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no init.sql ec2-user@$IP:~/
-          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no docker-compose.qa.yml ec2-user@$IP:~/
+          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no ./test/test_2.sh ec2-user@"$IP":~/
+          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no init.sql ec2-user@"$IP":~/
+          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no docker-compose.qa.yml ec2-user@"$IP":~/
 
       - name: Checkout Infra Repository
         uses: actions/checkout@v4
