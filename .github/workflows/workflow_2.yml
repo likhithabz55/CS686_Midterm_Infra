@@ -35,7 +35,7 @@ jobs:
         run: |
          aws ec2 run-instances \
            --image-id ami-05b10e08d247fb927 --count 1 \
-           --instance-type t2.micro --key-name ~/.ssh/MyEC2KeyPair.pem \
+           --instance-type t2.micro --key-name MyEC2KeyPair \
            --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=temp_EC2}]'
         env:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
