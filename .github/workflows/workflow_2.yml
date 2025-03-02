@@ -68,10 +68,15 @@ jobs:
       - name: ssh to EC2
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/MyEC2KeyPair.pem ec2-user@"$IP" << 'EOF'
+            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            export AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}
+            export AWS_DEFAULT_REGION=${{ secrets.AWS_REGION }}
+            echo $AWS_ACCESS_KEY_ID
             echo "Docker setup"
-            bash docker_setup.sh
+#bash docker_setup.sh
             echo "working dir test"
-            echo $pwd
+            echo pwd
             echo "ECR"
             bash ecr_steps.sh
             echo "docker build"
@@ -82,6 +87,10 @@ jobs:
       - name: Integration_tests
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/MyEC2KeyPair.pem ec2-user@"$IP" << 'EOF'
+            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            export AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}
+            export AWS_DEFAULT_REGION=${{ secrets.AWS_REGION }}
             bash test_2.sh
             if [ $? -ne 0 ]; then
               echo "Tests failed"

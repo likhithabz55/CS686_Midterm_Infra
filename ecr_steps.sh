@@ -1,10 +1,5 @@
 #!/bin/bash
 
-export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-export AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN
-export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
-
 aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin 343830488876.dkr.ecr.us-east-1.amazonaws.com
 
 export LATEST_BACKEND_TAG=$(aws ecr describe-images --repository-name midterm/ecr_1 \
