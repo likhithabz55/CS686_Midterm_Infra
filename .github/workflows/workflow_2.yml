@@ -76,10 +76,12 @@ jobs:
           
             export DOCKER_CONFIG=$HOME/.docker
             echo "Docker setup"
+            chmod +x docker_setup.sh
             ./docker_setup.sh
             echo "working dir test"
             echo pwd
             echo "ECR"
+            chmod +x ecr_steps.sh
             ./ecr_steps.sh
             echo "docker build"
             exit
