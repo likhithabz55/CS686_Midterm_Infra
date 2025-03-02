@@ -37,7 +37,8 @@ jobs:
            --image-id ami-05b10e08d247fb927 --count 1 \
            --instance-type t2.micro --key-name MyEC2KeyPair \
            --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=temp_EC2}]'
-
+        env:
+          AWS_DEFAULT_REGION: $aws-region
       - name: Fetch IP of EC2
         run: |
           IP=$(aws ec2 describe-instances \ 
