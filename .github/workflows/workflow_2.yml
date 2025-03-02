@@ -44,7 +44,8 @@ jobs:
         run: |
           echo "Instance successfully launched"
           echo "fetching IP"
-          export IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=temp_EC2" "Name=instance-state-name,Values=running" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
+          export IP=$(aws ec2 describe-instances --filter Name=tag:Name,Values=temp_EC2 \
+            --filter Name=instance-state-name,Values=Running --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
           echo $IP
           echo "IP=$IP" >> $GITHUB_ENV
       - name: Copying test, init.sql, docker-compose files from source repo to EC2
