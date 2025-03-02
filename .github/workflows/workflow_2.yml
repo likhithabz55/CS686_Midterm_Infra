@@ -1,11 +1,11 @@
 name: Deploy to Temporary EC2
 
 on:
-  workflow_dispatch:
   workflow_run:
     workflows: ["Nightly Build"]
     types:
       - success
+  workflow_dispatch:
 
 env:
   MyEC2KeyPair: |
@@ -25,6 +25,11 @@ jobs:
         with:
           repository: "likhithabz55/CS686_Midterm_Source"
 
+      - name: Setting up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "$MyEC2KeyPair" > ~/.ssh/MyEC2KeyPair.pem
+          chmod 400 ~/.ssh/MyEC2KeyPair.pem
       - name: Launching temporary EC2
         run: |
          cd ~
@@ -42,11 +47,10 @@ jobs:
 
       - name: Copying test, init.sql, docker-compose files from source repo to EC2
         run: |
-          scp -i ~/MyEC2KeyPair.pem -o StrictHostKeyChecking=no CS686_Midterm_Source/test/test_2.sh ec2-user@$IP:./
-          scp -i ~/MyEC2KeyPair.pem -o StrictHostKeyChecking=no CS686_Midterm_Source/init.sql ec2-user@$IP:./
-          scp -i ~/MyEC2KeyPair.pem -o StrictHostKeyChecking=no CS686_Midterm_Source/docker-compose.ec2.yml ec2-user@$IP:./
-        with:
-          MyEC2KeyPair
+          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no CS686_Midterm_Source/test/test_2.sh ec2-user@$IP:./
+          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no CS686_Midterm_Source/init.sql ec2-user@$IP:./
+          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no CS686_Midterm_Source/docker-compose.ec2.yml ec2-user@$IP:./
+        
 
       - name: Checkout Infra Repository
         uses: actions/checkout@v4
@@ -55,9 +59,7 @@ jobs:
 
       - name: ssh to EC2
         run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@$IP
-        with:
-          MyEC2KeyPair
+          ssh -o StrictHostKeyChecking=no -i ./.ssh/MyEC2KeyPair.pem ec2-user@$IP
 
       - name: EC2 Docker setup
         run: bash docker_setup.sh
