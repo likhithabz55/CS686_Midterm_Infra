@@ -46,9 +46,10 @@ jobs:
           echo $IP
       - name: Copying test, init.sql, docker-compose files from source repo to EC2
         run: |
-          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no test/test_2.sh ec2-user@"$IP":~/
-          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no init.sql ec2-user@"$IP":~/
-          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no docker-compose.ec2.yml ec2-user@"$IP":~/
+          echo $IP
+          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no test/test_2.sh ec2-user@$IP:~/
+          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no init.sql ec2-user@$IP:~/
+          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no docker-compose.ec2.yml ec2-user@$IP:~/
         
 
       - name: Checkout Infra Repository
