@@ -27,6 +27,3 @@ sudo docker tag 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$LATE
 
 mv ./docker-compose.ec2.yml ./docker-compose.yml
 
-
-echo $(which docker-compose)
-sudo docker compose up -d
