@@ -80,7 +80,7 @@ jobs:
             echo "ECR"
             bash ecr_steps.sh
             echo "docker build"
-            docker compose -f docker-compose.ec2.yml up -d
+            sudo docker compose -f docker-compose.ec2.yml up -d
             exit
           EOF
 
@@ -105,8 +105,8 @@ jobs:
                 --image-ids imageTag=$FRONTEND_TIMESTAMP
             else
               echo "Tests pass"
-              docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$BACKEND_TIMESTAMP
-              docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$FRONTEND_TIMESTAMP
+              sudo docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$BACKEND_TIMESTAMP
+              sudo docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$FRONTEND_TIMESTAMP
             fi
           EOF
           
