@@ -58,6 +58,13 @@ jobs:
         with:
           repository: "likhithabz55/CS686_Midterm_Infra"
 
+      - name: Copy sh files
+        run: |
+          echo $IP
+          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no ./docker_build.sh ec2-user@$IP:~/
+          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no ./docker_setup.sh ec2-user@$IP:~/
+          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no ./ecr_steps.sh ec2-user@$IP:~/
+          
       - name: ssh to EC2
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/MyEC2KeyPair.pem ec2-user@"$IP" << 'EOF'
