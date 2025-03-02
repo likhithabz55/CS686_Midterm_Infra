@@ -70,7 +70,7 @@ jobs:
 
       - name: Run containers with docker compose
         run: |
-          docker compose -f docker-compose.ec2.yml up -d
+          docker-compose -f docker-compose.ec2.yml up -d
 
       - name: Integration_tests
         run: |
@@ -81,11 +81,11 @@ jobs:
         run: |
           aws ecr batch-delete-image \
             --repository-name midterm/ecr_1 \
-            --image-ids imageTag=LATEST_BACKEND_TAG
+            --image-ids imageTag=$LATEST_BACKEND_TAG
           
           aws ecr batch-delete-image \
             --repository-name midterm/ecr_1 \
-            --image-ids imageTag=LATEST_FRONTEND_TAG
+            --image-ids imageTag=$LATEST_FRONTEND_TAG
           
 
       - name: Tag and upload images
