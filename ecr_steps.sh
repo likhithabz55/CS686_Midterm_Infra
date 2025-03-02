@@ -15,14 +15,14 @@ export LATEST_FRONTEND_TAG=$(aws ecr describe-images --repository-name midterm/e
 
 echo "LATEST_FRONTEND_TAG=$LATEST_FRONTEND_TAG"
 
-sudo docker pull 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$LATEST_BACKEND_TAG
+docker pull 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$LATEST_BACKEND_TAG
 
-sudo docker pull 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$LATEST_FRONTEND_TAG
+docker pull 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$LATEST_FRONTEND_TAG
 
-sudo docker tag 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$LATEST_BACKEND_TAG \
+docker tag 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$LATEST_BACKEND_TAG \
   343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:backend_latest
 
-sudo docker tag 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$LATEST_FRONTEND_TAG \
+docker tag 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$LATEST_FRONTEND_TAG \
   343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:frontend_latest
 
 mv ./docker-compose.ec2.yml ./docker-compose.yml
