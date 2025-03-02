@@ -75,17 +75,14 @@ jobs:
             
             echo "Docker setup"
             chmod +x docker_setup.sh
-            if ! command -v docker &> /dev/null
-            then
-              ./docker_setup.sh
-              newgrp docker
-              echo "Docker installed"
-            else
-              echo "Docker already installed"
+            ./docker_setup.sh
+            newgrp docker
+            echo "Docker installed"
             
             echo "ECR"
             chmod +x ecr_steps.sh
             ./ecr_steps.sh
+            exit
           EOF
             
             
