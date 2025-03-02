@@ -42,6 +42,8 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
       - name: Fetch IP of EC2
         run: |
+          echo "Instance successfully launched"
+          echo "fetching IP"
           export IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=temp_EC2" "Name=instance-state-name,Values=running" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
           echo $IP
           echo "IP=$IP" >> $GITHUB_ENV
