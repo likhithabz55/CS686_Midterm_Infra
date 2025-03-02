@@ -23,3 +23,7 @@ sudo docker tag 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$LATE
 
 sudo docker tag 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$LATEST_FRONTEND_TAG \
   343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:frontend_latest
+
+mv ./docker-compose.ec2.yml ./docker-compose.yml
+export DOCKER_CONFIG=/home/ec2-user/.docker
+sudo docker compose up -d
