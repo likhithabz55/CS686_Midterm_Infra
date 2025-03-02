@@ -48,7 +48,7 @@ jobs:
         run: |
           echo $IP
           scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no ./qa/docker_setup.sh ec2-user@"$IP":~/
-          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no ./qa/ecr_steps.sh ec2-user@"$IP":~/
+          scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no ./qa/pull_images.sh ec2-user@"$IP":~/
 
       - name: Checkout Infra Repository
         uses: actions/checkout@v4
@@ -75,9 +75,13 @@ jobs:
             
             echo "Docker setup"
             chmod +x docker_setup.sh
-            ./docker_setup.sh
-            
-            newgrp docker
+            if ! command -v docker &> /dev/null
+            then
+              ./docker_setup.sh
+              newgrp docker
+              echo "Docker installed"
+            else
+              echo "Docker already installed"
             
             echo "ECR"
             chmod +x ecr_steps.sh
