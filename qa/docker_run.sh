@@ -26,11 +26,13 @@ export LATEST_FRONTEND_TAG=$(aws ecr describe-images --repository-name midterm/e
 
 echo "LATEST_FRONTEND_TAG=$LATEST_FRONTEND_TAG"
 
+flag="false"
+
 if [[ "$LATEST_FRONTEND_TAG" != "$FRONTEND_LATEST_LOCAL" ]]; then
     docker pull 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$LATEST_FRONTEND_TAG
     docker tag 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:frontend_latest 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$FRONTEND_LATEST_LOCAL
     docker tag 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$LATEST_FRONTEND_TAG 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:frontend_latest
-    # Command A
+    flag="true"
 else
     echo "Images are already updated"
 fi
@@ -41,6 +43,11 @@ if [[ "$LATEST_BACKEND_TAG" != "$BACKEND_LATEST_LOCAL" ]]; then
     # Command A
 else
     echo "Images are already updated"
+fi
+
+if [[ $flag == "true" ]]; then
+  docker compose -f ./docker-compose.qa.yml down -v
+  docker compose -f ./docker-compose.qa.yml up -d
 fi
 
 #docker pull 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$LATEST_BACKEND_TAG
