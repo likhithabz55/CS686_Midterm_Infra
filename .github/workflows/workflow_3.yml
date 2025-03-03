@@ -85,7 +85,7 @@ jobs:
             echo "Docker installed"
             
             echo "ECR"
-            chmod +x pull_images.sh
+            chmod +x docker_run.sh
             ./docker_run.sh
             exit
           EOF
