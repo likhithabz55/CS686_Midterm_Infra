@@ -101,6 +101,9 @@ jobs:
             chmod +x test_2.sh
             ./test_2.sh
             
+            export FRONTEND_TIMESTAMP=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -E '^.*:frontend_' | awk -F: '{print $2}' | sort -V | head -n 1)
+            export BACKEND_TIMESTAMP=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -E '^.*:backend_' | awk -F: '{print $2}' | sort -V | head -n 1)
+            
             if [ $? -ne 0 ]; then
               echo "Tests failed"
               aws ecr batch-delete-image \
