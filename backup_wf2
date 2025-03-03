@@ -53,7 +53,7 @@ jobs:
           scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no test/test_2.sh ec2-user@$IP:~/
           scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no init.sql ec2-user@$IP:~/
           scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no docker-compose.ec2.yml ec2-user@$IP:~/
-        
+
 
       - name: Checkout Infra Repository
         uses: actions/checkout@v4
@@ -66,7 +66,7 @@ jobs:
           scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no ./docker_build.sh ec2-user@$IP:~/
           scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no ./docker_setup.sh ec2-user@$IP:~/
           scp -i ~/.ssh/MyEC2KeyPair.pem -o StrictHostKeyChecking=no ./ecr_steps.sh ec2-user@$IP:~/
-          
+
       - name: Boot the containers
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/MyEC2KeyPair.pem ec2-user@"$IP" << 'EOF'
@@ -75,7 +75,7 @@ jobs:
             export AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}
             export AWS_DEFAULT_REGION=${{ secrets.AWS_REGION }}
             export DOCKER_CONFIG=$HOME/.docker
-          
+
             echo "Docker setup"
             chmod +x docker_setup.sh
             ./docker_setup.sh
@@ -83,7 +83,7 @@ jobs:
             echo "ECR"
             chmod +x ecr_steps.sh
             ./ecr_steps.sh
-          
+
             echo "docker build"
             docker compose up -d
             exit
@@ -99,11 +99,24 @@ jobs:
             export FRONTEND_TIMESTAMP=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -E '^.*:frontend_' | awk -F: '{print $2}' | sort -V | head -n 1)
             export BACKEND_TIMESTAMP=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -E '^.*:backend_' | awk -F: '{print $2}' | sort -V | head -n 1)
             chmod +x test_2.sh
-            docker tag 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$BACKEND_TIMESTAMP 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$BACKEND_TIMESTAMP
-            docker tag 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$FRONTEND_TIMESTAMP 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$FRONTEND_TIMESTAMP
-            docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$BACKEND_TIMESTAMP
-            docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$FRONTEND_TIMESTAMP
-            exit 
+            ./test_2.sh
+            if [ $? -ne 0 ]; then
+              echo "Tests failed"
+              aws ecr batch-delete-image \
+                --repository-name midterm/ecr_1 \
+                --image-ids imageTag=$BACKEND_TIMESTAMP
+
+              aws ecr batch-delete-image \
+                --repository-name midterm/ecr_1 \
+                --image-ids imageTag=$FRONTEND_TIMESTAMP
+            else
+              echo "Tests pass"
+              docker tag 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$BACKEND_TIMESTAMP 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$BACKEND_TIMESTAMP
+              docker tag 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_1:$FRONTEND_TIMESTAMP 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$FRONTEND_TIMESTAMP
+              docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$BACKEND_TIMESTAMP
+              docker push 343830488876.dkr.ecr.us-east-1.amazonaws.com/midterm/ecr_2:$FRONTEND_TIMESTAMP
+            fi
+            exit
           EOF
 
       #- name: Deleting EC2 instance
@@ -115,7 +128,7 @@ jobs:
       #    echo "instance_id=$instance_id"
       #    aws ec2 terminate-instances --instance-ids $instance_id
       #    echo "Instance shutting down"
-          
-          
-          
-          
+
+
+
+
